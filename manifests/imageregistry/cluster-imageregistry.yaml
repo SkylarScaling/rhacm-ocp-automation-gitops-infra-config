@@ -1,0 +1,16 @@
+apiVersion: imageregistry.operator.openshift.io/v1
+kind: Config
+metadata:
+  name: cluster
+spec:
+  defaultRoute: true
+  replicas: 2
+  logging: 2
+  managementState: Managed
+  nodeSelector: 
+    node-role.kubernetes.io/infra: ""
+  tolerations: 
+    - key: "node-function"
+      operator: "Equal"
+      value: "infra"
+      effect: "NoSchedule"

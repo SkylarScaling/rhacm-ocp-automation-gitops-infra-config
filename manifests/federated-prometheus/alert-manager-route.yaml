@@ -1,0 +1,18 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: alert-manager
+  namespace: federated-prometheus
+  labels:
+    app: federated-monitor
+spec:
+  to:
+    kind: Service
+    name: alertmanager
+    weight: 100
+  port:
+    targetPort: alertmanager
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: None
+  wildcardPolicy: None

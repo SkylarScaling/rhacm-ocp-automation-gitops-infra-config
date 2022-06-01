@@ -1,0 +1,80 @@
+---
+apiVersion: logging.openshift.io/v1
+kind: ClusterLogging
+metadata:
+  name: "instance" 
+  namespace: "openshift-logging" 
+spec:
+  managementState: "Managed" 
+  logStore:
+    type: "elasticsearch" 
+    retentionPolicy:
+      application:
+        maxAge: 1d
+      infra:
+        maxAge: 7d
+      audit:
+        maxAge: 7d
+    elasticsearch:
+      nodeCount: 3
+      nodeSelector: 
+        node-role.kubernetes.io/infra: ''
+      tolerations:
+      - key: "node-function"
+        operator: "Equal"
+        value: "infra"
+        effect: "NoSchedule"
+      resources:
+        limits:
+          memory: 16Gi
+        requests:
+          cpu: 500m
+          memory: 16Gi
+      storage:
+        storageClassName: "gp2"
+        size: "200G"
+      redundancyPolicy: "SingleRedundancy"
+  visualization: 
+    type: "kibana"
+    kibana:
+      nodeSelector: 
+        node-role.kubernetes.io/infra: ''
+      tolerations:
+      - key: "node-function"
+        operator: "Equal"
+        value: "infra"
+        effect: "NoSchedule"
+      resources:
+        limits:
+          memory: 736Mi
+        requests:
+          cpu: 100m
+          memory: 736Mi
+      replicas: 1
+  curation: 
+    type: "curator"
+    curator:
+      nodeSelector: 
+        node-role.kubernetes.io/infra: ''
+      tolerations:
+      - key: "node-function"
+        operator: "Equal"
+        value: "infra"
+        effect: "NoSchedule"
+      resources:
+        limits:
+          memory: 256Mi
+        requests:
+          cpu: 100m
+          memory: 256Mi
+      schedule: "30 3 * * *"
+  collection: 
+    logs:
+      type: "fluentd"
+      fluentd:
+        resources:
+          limits:
+            memory: 736Mi
+          requests:
+            cpu: 100m
+            memory: 736Mi

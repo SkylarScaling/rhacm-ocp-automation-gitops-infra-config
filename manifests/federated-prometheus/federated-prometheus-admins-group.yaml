@@ -1,0 +1,7 @@
+apiVersion: user.openshift.io/v1
+kind: Group
+metadata:
+  name: federated-prometheus-admins 
+users:
+  # Add list of users
+  - user@domain.com

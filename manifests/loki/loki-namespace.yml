@@ -1,0 +1,7 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: loki
+  annotations:
+    openshift.io/description: 'loki'
+    openshift.io/display-name: 'loki'

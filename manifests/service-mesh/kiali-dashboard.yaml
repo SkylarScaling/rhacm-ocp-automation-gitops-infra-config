@@ -1,0 +1,75 @@
+apiVersion: "monitoring.kiali.io/v1alpha1"
+kind: MonitoringDashboard
+metadata:
+  name: request-metrics
+  namespace: istio-system
+spec:
+  title: Request Metrics
+  items:
+  - chart:
+      name: Latency
+      aggregations:
+      - displayName: Operation
+        label: request_operation
+      dataType: rate
+      aggregator: avg
+      metricName: istio_request_duration_milliseconds_bucket
+      displayName: Latency
+      unit: seconds
+      unitScale: 0.001
+      spans: 6   
+  - chart:
+      name: Request Volume
+      aggregations:
+      - displayName: Operation
+        label: request_operation
+      - displayName: Response Code
+        label: response_code
+      dataType: rate
+      aggregator: sum
+      metricName: istio_requests_total
+      unit: ops
+      unitScale: 10
+      displayName: Request Volume
+      spans: 6
+  - chart:
+      name: Error Rate
+      aggregations:
+      - displayName: Operation
+        label: request_operation
+      dataType: 'raw'
+      aggregator: sum
+      metricName: pts:requests_error_rate
+      unit: '%'
+      unitScale: 100
+      displayName: Error Rate
+      spans: 6
+
+---
+apiVersion: "monitoring.kiali.io/v1alpha1"
+kind: MonitoringDashboard
+metadata:
+  name: performance-metrics
+  namespace: istio-system
+spec:
+  title: Performance Metrics
+  items:
+  - chart:
+      name: 'CPU Usage'
+      dataType: raw
+      aggregator: sum
+      metricName: pts:container_cpu_usage_seconds_total:sum_rate
+      displayName: 'CPU Usage'
+      unit: 'core'
+      unitScale: 1
+      spans: 6 
+  - chart:
+      name: 'Memory Usage'
+      dataType: raw
+      aggregator: sum
+      metricName: pts:container_memory_working_set_bytes
+      displayName: 'Memory Usage'
+      unit: 'bytes'
+      spans: 6  
+      
+      

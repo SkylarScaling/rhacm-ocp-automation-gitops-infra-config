@@ -1,0 +1,10 @@
+# OCS Operator (Namespace + Operator Group + Subscription)
+---
+# Create openshift-storage namespace.
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    openshift.io/cluster-monitoring: "true"
+  name: gpu-operator-resources
+spec: {}

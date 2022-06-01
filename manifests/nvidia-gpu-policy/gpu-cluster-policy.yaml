@@ -1,0 +1,138 @@
+apiVersion: nvidia.com/v1
+kind: ClusterPolicy
+metadata:
+  name: gpu-cluster-policy
+spec:
+  migManager:
+    nodeSelector:
+      nvidia.com/gpu.deploy.mig-manager: 'true'
+    enabled: true
+    imagePullSecrets: []
+    resources: {}
+    affinity: {}
+    podSecurityContext: {}
+    repository: nvcr.io/nvidia/cloud-native
+    env:
+      - name: WITH_REBOOT
+        value: 'false'
+    securityContext: {}
+    version: 'sha256:495ed3b42e0541590c537ab1b33bda772aad530d3ef6a4f9384d3741a59e2bf8'
+    image: k8s-mig-manager
+    tolerations: []
+    priorityClassName: system-node-critical
+  operator:
+    defaultRuntime: crio
+    initContainer:
+      image: cuda
+      imagePullSecrets: []
+      repository: nvcr.io/nvidia
+      version: 'sha256:15674e5c45c97994bc92387bad03a0d52d7c1e983709c471c4fecc8e806dbdce'
+  gfd:
+    nodeSelector:
+      nvidia.com/gpu.deploy.gpu-feature-discovery: 'true'
+    imagePullSecrets: []
+    resources: {}
+    affinity: {}
+    podSecurityContext: {}
+    repository: nvcr.io/nvidia
+    env:
+      - name: GFD_SLEEP_INTERVAL
+        value: 60s
+      - name: FAIL_ON_INIT_ERROR
+        value: 'true'
+    securityContext: {}
+    version: 'sha256:bfc39d23568458dfd50c0c5323b6d42bdcd038c420fb2a2becd513a3ed3be27f'
+    image: gpu-feature-discovery
+    tolerations: []
+    priorityClassName: system-node-critical
+  dcgmExporter:
+    nodeSelector:
+      nvidia.com/gpu.deploy.dcgm-exporter: 'true'
+    imagePullSecrets: []
+    resources: {}
+    affinity: {}
+    podSecurityContext: {}
+    repository: nvcr.io/nvidia/k8s
+    securityContext: {}
+    version: 'sha256:8af02463a8b60b21202d0bf69bc1ee0bb12f684fa367f903d138df6cacc2d0ac'
+    image: dcgm-exporter
+    tolerations: []
+    priorityClassName: system-node-critical
+  driver:
+    licensingConfig:
+      configMapName: ''
+    nodeSelector:
+      nvidia.com/gpu.deploy.driver: 'true'
+    enabled: true
+    imagePullSecrets: []
+    resources: {}
+    affinity: {}
+    podSecurityContext: {}
+    repository: nvcr.io/nvidia
+    securityContext: {}
+    repoConfig:
+      configMapName: ''
+      destinationDir: ''
+    version: 'sha256:09ba3eca64a80fab010a9fcd647a2675260272a8c3eb515dfed6dc38a2d31ead'
+    image: driver
+    tolerations: []
+    priorityClassName: system-node-critical
+  devicePlugin:
+    nodeSelector:
+      nvidia.com/gpu.deploy.device-plugin: 'true'
+    imagePullSecrets: []
+    resources: {}
+    affinity: {}
+    podSecurityContext: {}
+    repository: nvcr.io/nvidia
+    env:
+      - name: PASS_DEVICE_SPECS
+        value: 'true'
+      - name: FAIL_ON_INIT_ERROR
+        value: 'true'
+      - name: DEVICE_LIST_STRATEGY
+        value: envvar
+      - name: DEVICE_ID_STRATEGY
+        value: uuid
+      - name: NVIDIA_VISIBLE_DEVICES
+        value: all
+      - name: NVIDIA_DRIVER_CAPABILITIES
+        value: all
+    securityContext: {}
+    version: 'sha256:85def0197f388e5e336b1ab0dbec350816c40108a58af946baa1315f4c96ee05'
+    image: k8s-device-plugin
+    tolerations: []
+    args: []
+    priorityClassName: system-node-critical
+  mig:
+    strategy: single
+  validator:
+    nodeSelector:
+      nvidia.com/gpu.deploy.operator-validator: 'true'
+    imagePullSecrets: []
+    resources: {}
+    affinity: {}
+    podSecurityContext: {}
+    repository: nvcr.io/nvidia/cloud-native
+    env:
+      - name: WITH_WORKLOAD
+        value: 'true'
+    securityContext: {}
+    version: 'sha256:aa1f7bd526ae132c46f3ebe6ecfabe675889e240776ccc2155e31e0c48cc659e'
+    image: gpu-operator-validator
+    tolerations: []
+    priorityClassName: system-node-critical
+  toolkit:
+    nodeSelector:
+      nvidia.com/gpu.deploy.container-toolkit: 'true'
+    enabled: true
+    imagePullSecrets: []
+    resources: {}
+    affinity: {}
+    podSecurityContext: {}
+    repository: nvcr.io/nvidia/k8s
+    securityContext: {}
+    version: 'sha256:ffa284f1f359d70f0e1d6d8e7752d7c92ef7445b0d74965a8682775de37febf8'
+    image: container-toolkit
+    tolerations: []
+    priorityClassName: system-node-critical

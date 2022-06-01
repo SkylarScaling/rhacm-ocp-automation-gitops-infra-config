@@ -1,0 +1,7 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: fluentd
+  annotations:
+    openshift.io/description: 'fluentd'
+    openshift.io/display-name: 'fluentd'

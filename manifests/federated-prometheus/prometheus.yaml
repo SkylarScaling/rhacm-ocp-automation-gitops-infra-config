@@ -1,0 +1,103 @@
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: federated-prometheus
+  labels:
+    prometheus: federated-prometheus
+    thanos-store-api: "true"
+  namespace:  federated-prometheus
+spec:
+  replicas: 1
+  serviceAccountName: prometheus-k8s
+  serviceMonitorSelector:
+    matchLabels:
+      app: federated-monitor
+  ruleSelector:
+    matchLabels:
+      app: federated-monitor      
+  alerting:
+    alertmanagers:
+    - namespace:  federated-prometheus
+      name: alertmanager
+      port: alertmanager    
+  additionalScrapeConfigs:
+        name: app-prometheus-scrape-configs
+        key: additional-scrape-config.yaml
+  configMaps:
+    - serving-certs-ca-bundle  
+  storage:
+    volumeClaimTemplate:
+      metadata:
+        name: prometheus-storage
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: ocs-storagecluster-ceph-rbd    
+        resources:
+          requests:
+            storage: 1000Gi                  
+  containers: 
+    - name: oauth-proxy
+      image: quay.io/openshift/origin-oauth-proxy:4.3
+      args:
+        - -provider=openshift
+        - -https-address=:9091
+        - -http-address=
+        - -email-domain=*
+        - -upstream=http://localhost:9090
+        - -openshift-service-account=prometheus-k8s
+        - '-openshift-sar={"namespace": "federated-prometheus", "resource": "services", "name": "federated-prometheus-direct", "verb": "get"}'
+        - -tls-cert=/etc/tls/private/tls.crt
+        - -tls-key=/etc/tls/private/tls.key
+        - -cookie-secret-file=/etc/proxy/secrets/session_secret
+        - -skip-auth-regex=^/metrics
+      ports:
+      - containerPort: 9091
+        name: web-proxy
+      volumeMounts:
+      - mountPath: /etc/tls/private
+        name: secret-prometheus-k8s-tls
+      - mountPath: /etc/proxy/secrets
+        name: secret-prometheus-k8s-proxy
+  thanos:
+    image: registry.redhat.io/openshift4/ose-thanos-rhel8
+    objectStorageConfig:
+      key: thanos.yaml
+      name: thanos-objstore-config   
+    resources:
+      requests:
+        cpu: 500m
+        memory: 2Gi
+      limits:
+        cpu: 500m
+        memory: 2Gi      
+  secrets:
+    - app-prometheus-bearer-token
+    - prometheus-k8s-tls
+    - prometheus-k8s-proxy  
+    - istio-prometheus-password
+    - thanos
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    service.alpha.openshift.io/serving-cert-secret-name: prometheus-k8s-tls
+  labels:
+    prometheus: federated-prometheus
+  name: prometheus-k8s
+  namespace:  federated-prometheus
+spec:
+  ports:
+  - name: web-proxy
+    port: 9091
+    protocol: TCP
+    targetPort: web-proxy
+  selector:
+    app: prometheus
+    prometheus: federated-prometheus
+  type: ClusterIP
+
+
+

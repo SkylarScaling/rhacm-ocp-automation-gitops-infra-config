@@ -1,0 +1,38 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: KubeletConfig
+metadata:
+  name: worker-kubelet
+spec:
+  machineConfigPoolSelector:
+    matchLabels:
+      pools.operator.machineconfiguration.openshift.io/worker: ""
+  kubeletConfig:
+    evictionSoft:
+      imagefs.available: "15%"
+      imagefs.inodesFree: "10%"
+      memory.available: "500Mi"
+      nodefs.available: "10%"
+      nodefs.inodesFree: "5%"
+    evictionHard:
+      imagefs.available: 15%
+      imagefs.inodesFree: 10%
+      memory.available: 500Mi
+      nodefs.available: 10%
+      nodefs.inodesFree: 10%
+    imageMinimumGCAge: 5m
+    evictionSoftGracePeriod:
+      imagefs.available: 2m
+      imagefs.inodesFree: 2m
+      memory.available: 2m
+      nodefs.available: 2m
+      nodefs.inodesFree: 2m
+    maxPods: 200
+    imageGCHighThresholdPercent: 90
+    kubeReserved:
+      cpu: 500m
+      memory: 1Gi
+    systemReserved:
+      cpu: 500m
+      memory: 1.5Gi
+    imageGCLowThresholdPercent: 85
+    evictionPressureTransitionPeriod: 30s

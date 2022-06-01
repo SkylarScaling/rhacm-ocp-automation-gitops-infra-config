@@ -1,0 +1,11 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - operators-namespace.yaml
+  - logging-namespace.yaml
+  - logging-operatorgroup.yaml
+  - es-operatorgroup.yaml 
+  - es-subscription.yaml
+  - logging-subscription.yaml
+  - clusterlogging-instance.yaml

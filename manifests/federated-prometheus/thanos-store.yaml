@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: thanos-store
+  namespace: federated-prometheus
+  labels:
+    app: thanos-store
+    thanos-store-api: "true"
+spec:
+  serviceName: "thanos-store"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: thanos-store
+      thanos-store-api: "true"
+  template:
+    metadata:
+      labels:
+        app: thanos-store
+        thanos-store-api: "true"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "10902"
+    spec:
+      containers:
+      - name: thanos-store
+        image: registry.redhat.io/openshift4/ose-thanos-rhel8
+        args:
+        - "store"
+        - "--log.level=debug"
+        - "--data-dir=/var/thanos/store"
+        - "--objstore.config-file=/config/thanos-store.yml"
+        ports:
+        - name: http
+          containerPort: 10902
+        - name: grpc
+          containerPort: 10901
+        - name: cluster
+          containerPort: 10900
+        volumeMounts:
+        - name: config
+          mountPath: /config/
+          readOnly: true
+        - name: data
+          mountPath: /var/thanos/store
+      volumes:
+      - name: data
+        emptyDir: {}
+      - name: config
+        configMap:
+          name: thanos-store-config
+---
+#This service creates a srv record for querier to find about store-api's
+apiVersion: v1
+kind: Service
+metadata:
+  name: thanos-store
+  labels:
+    app: thanos-store
+  namespace: federated-prometheus
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: grpc
+      port: 10901
+      targetPort: grpc
+  selector:
+    thanos-store-api: "true"      

@@ -1,0 +1,99 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: loki
+  namespace: loki
+  labels:
+    app: loki
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      kubernetes.io/cluster-service: 'true'
+      name: loki
+      version: v1
+  template:
+    metadata:
+      annotations:
+        alpha.image.policy.openshift.io/resolve-names: '*'
+      labels:
+        kubernetes.io/cluster-service: 'true'
+        name: loki
+        app: loki
+        version: v1
+    spec:
+      restartPolicy: Always
+      serviceAccountName: loki-account
+      #imagePullSecrets:
+        #- name: ocp-reader-pull-secret
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      securityContext: {}
+      containers:
+        - name: loki
+          image: loki:latest
+          env:
+          - name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                key: AWS_ACCESS_KEY_ID
+                name:  loki
+          - name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AWS_SECRET_ACCESS_KEY
+                name:  loki
+          - name: bucketnames
+            valueFrom:
+              configMapKeyRef:
+                key: BUCKET_NAME
+                name:  loki
+          - name: region
+            valueFrom:
+              configMapKeyRef:
+                key: BUCKET_REGION
+                name:  loki
+          - name: endpoint
+            valueFrom:
+              configMapKeyRef:
+                key: BUCKET_HOST
+                name:  loki
+          ports:
+            - containerPort: 3100
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 100m
+              memory: 800Mi
+          volumeMounts:
+            - name: loki-data
+              mountPath: /data
+            - name: loki-config
+              mountPath: /etc/loki/config/
+            - name: loki-rules
+              mountPath: /etc/loki/rules
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: Always
+          #imagePullPolicy: IfNotPresent
+      serviceAccount: loki-account
+      volumes:
+        - name: loki-data
+          persistentVolumeClaim:
+            claimName: loki-data
+        - name: loki-config
+          configMap:
+            name: loki-config
+            defaultMode: 420
+        - name: loki-rules
+          configMap:
+            name: loki-rules
+            defaultMode: 420
+      dnsPolicy: ClusterFirst
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600

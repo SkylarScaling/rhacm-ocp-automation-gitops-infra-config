@@ -1,0 +1,41 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - alert-manager-config-secret.yaml
+  - alert-manager.yaml
+  - federated-prometheus-admins-rolebinding.yaml
+  - federated-prometheus-developers-rolebinding.yaml
+  - federated-prometheus-clusterrolebinding.yaml
+  - federated-prometheus-clusterrole.yaml
+  - federated-prometheus-admins-group.yaml
+  - rbac-proxy-secret-creator.yaml 
+  - grafana-k8s-proxy-secret-creator.yaml
+  - prometheus-k8s-proxy-secret-creator.yaml  
+  - federated-prometheus-direct-service.yaml
+  - federated-prometheus-route.yaml
+  - grafana-proxy-clusterrolebinding.yaml
+  - grafana-proxy-clusterrole.yaml
+  - grafana-route-basic-auth-route.yaml
+  - thanos-compactor.yaml
+  - thanos-compactor-service.yaml
+  - thanos-compactor-service-monitor.yaml
+  - thanos-peers-svc.yaml
+  - thanos-query-deployment.yaml
+  - thanos-query-service.yaml
+  - thanos-store.yaml
+  - prometheus-k8s-serviceaccount.yaml
+  - prometheus-secret-creator-job.yaml
+  - prometheus.yaml
+  - rbac.yaml
+  - rbac-thanosbucket-creator.yaml
+  - rbac-istio-secret.yaml 
+  - serviceaccount.yaml
+  - thanos-bucket-creator-job.yaml
+  - serviceaccount-istio-password-creator.yaml
+  - service-account-thanos-bucket-creator.yaml
+  - prometheus-istio-secret-creator-job.yaml
+  - serving-certs-ca-bundle-configmap.yaml
+  - sidecar-sevice.yaml
+  - alert-manager-route.yaml
+

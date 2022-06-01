@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  annotations:
+    openshift.io/description: "Namespace for Developing Federated Prometheus"
+    openshift.io/display-name: "Federated Prometheus"
+  name: federated-prometheus

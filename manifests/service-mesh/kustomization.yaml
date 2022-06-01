@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - basic-servicemeshcontrolplane.yaml
+  - default-servicemeshmemberroll.yaml
+  - elasticsearch-subscription.yaml
+  - istio-system-namespace.yaml
+  - jaeger-subscription.yaml
+  - kiali-subscription.yaml
+  - kiali-dashboard.yaml
+  - kiali-configmap.yaml
+  - openshift-operators-redhat-namespace.yaml
+  - openshift-operators-redhat-operatorgroup.yaml
+  - prometheus-configmap.yaml
+  - servicemesh-subscription.yaml
+  - ocp-service-mesh-admin-rolebinding.yaml
+  - ocp-service-mesh-developer-rolebinding.yaml

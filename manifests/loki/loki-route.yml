@@ -1,0 +1,18 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: loki
+  namespace: loki
+  labels:
+    app: loki
+spec:
+  to:
+    kind: Service
+    name: loki
+    weight: 100
+  port:
+    targetPort: http-metrics
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: None
+  wildcardPolicy: None

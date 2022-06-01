@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: thanos-query
+  name: thanos-query
+  namespace: federated-prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: thanos-query
+  template:
+    metadata:
+      labels:
+        app: thanos-query
+    spec:
+      containers:
+      - args:
+        - query
+        - --log.level=debug
+        - --query.replica-label=prometheus_replica
+        - --query.replica-label=thanos_ruler_replica
+        - --store=dnssrv+_grpc._tcp.thanos-sidecar.federated-prometheus.svc.cluster.local
+        image: registry.redhat.io/openshift4/ose-thanos-rhel8
+        name: thanos-query
+        ports:
+        - containerPort: 10902
+          name: http
+        - containerPort: 10901
+          name: grpc

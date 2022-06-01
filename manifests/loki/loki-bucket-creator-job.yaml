@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/sync-wave: "0"
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+  name:   loki-bucket-creator 
+  namespace: loki
+spec:
+  template:
+    spec:
+      containers:
+        - image: registry.redhat.io/openshift4/ose-cli:v4.6.0
+          command:
+            - /bin/bash
+            - -c
+            - |
+              export HOME=/tmp/creator
+
+              echo "Creating loki bucket"
+              sleep 3
+             
+             
+              cat <<EOF | oc apply -f -
+                apiVersion: objectbucket.io/v1alpha1
+                kind: ObjectBucketClaim
+                metadata:
+                  name: loki
+                  namespace: loki
+                spec:
+                  generateBucketName: 'loki'
+                  storageClassName: openshift-storage.noobaa.io
+              EOF
+
+          imagePullPolicy: Always
+          name: loki-bucket-creator 
+      dnsPolicy: ClusterFirst
+      restartPolicy: OnFailure
+      serviceAccount: loki-bucket-creator
+      serviceAccountName: loki-bucket-creator
+      terminationGracePeriodSeconds: 30

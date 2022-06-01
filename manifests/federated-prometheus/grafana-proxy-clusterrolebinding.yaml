@@ -1,0 +1,12 @@
+apiVersion: authorization.openshift.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: grafana-proxy
+  namespace: federated-prometheus
+roleRef:
+  name: grafana-proxy
+subjects:
+  - kind: ServiceAccount
+    name: grafana-serviceaccount
+userNames:
+  - system:serviceaccount:federated-prometheus:grafana-serviceaccount

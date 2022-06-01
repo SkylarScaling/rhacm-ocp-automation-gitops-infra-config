@@ -1,0 +1,42 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: thanos-bucket-creator 
+  namespace: federated-prometheus
+rules:
+  - apiGroups:
+      - objectbucket.io
+      - rbac.authorization.k8s.io
+      - ""
+    resources:
+      - events
+      - objectbucket
+      - objectbucketclaims
+      - endpoints
+      - secrets
+      - configmaps
+      - configmap
+    verbs:
+      - get
+      - list
+      - watch
+      - patch
+      - create
+      - update
+      - delete
+---
+
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: thanos-bucket-creator 
+  namespace: federated-prometheus 
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: thanos-bucket-creator 
+subjects:
+  - kind: ServiceAccount
+    name: thanos-bucket-creator 
+    namespace: federated-prometheus

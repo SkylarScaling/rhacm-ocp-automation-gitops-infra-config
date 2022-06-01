@@ -1,0 +1,83 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: thanos-bucket-creator
+  namespace: federated-prometheus 
+spec:
+  template:
+    spec:
+      containers:
+        - image: registry.redhat.io/openshift4/ose-cli:v4.6.0
+          command:
+            - /bin/bash
+            - -c
+            - |
+              export HOME=/tmp/creator
+
+              echo "Creating thanos bucket , configmap and secret...."
+              sleep 2
+              
+              cat <<EOF | oc apply -f -
+                apiVersion: objectbucket.io/v1alpha1
+                kind: ObjectBucketClaim
+                metadata:
+                  name: thanos
+                  namespace: federated-prometheus 
+                spec:
+                  generateBucketName: 'thanos'
+                  storageClassName: openshift-storage.noobaa.io
+              EOF
+              sleep 20
+
+              export ENDPOINT=$(oc  get configmap thanos -o jsonpath={.data.BUCKET_HOST})
+              export AWS_ACCESS_KEY_ID=$(oc get secret  thanos -o jsonpath={.data.AWS_ACCESS_KEY_ID} | base64 -d)
+              export AWS_SECRET_ACCESS_KEY=$(oc get secret  thanos -o jsonpath={.data.AWS_SECRET_ACCESS_KEY} | base64 -d)
+              export AWS_BUCKET=$(oc  get configmap thanos -o jsonpath={.data.BUCKET_NAME})
+              sleep 5
+               sleep 5            
+               echo "now creating configmap and secret......"
+               
+              cat <<EOF | oc apply -f -
+                apiVersion: v1
+                kind: ConfigMap
+                metadata:
+                  name: thanos-store-config
+                  namespace: federated-prometheus
+                data:
+                  thanos-store.yml: | 
+                    type: S3
+                    config:
+                      bucket: $AWS_BUCKET
+                      endpoint:  $ENDPOINT
+                      access_key: $AWS_ACCESS_KEY_ID
+                      secret_key: $AWS_SECRET_ACCESS_KEY
+                      insecure: true
+
+              EOF
+
+              cat <<EOF | oc apply -f -
+                
+                apiVersion: v1
+                kind: Secret
+                metadata:
+                  name: thanos-objstore-config
+                  namespace: federated-prometheus
+                stringData: 
+                  thanos.yaml: | 
+                    type: S3
+                    config:
+                      bucket: $AWS_BUCKET
+                      endpoint: $ENDPOINT
+                      access_key: $AWS_ACCESS_KEY_ID
+                      secret_key: $AWS_SECRET_ACCESS_KEY
+                      insecure: true
+              EOF
+
+      
+          imagePullPolicy: Always
+          name: thanos-bucket-creator 
+      dnsPolicy: ClusterFirst
+      restartPolicy: OnFailure
+      serviceAccount: thanos-bucket-creator 
+      serviceAccountName: thanos-bucket-creator 
+      terminationGracePeriodSeconds: 30

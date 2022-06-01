@@ -1,0 +1,230 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: kiali
+  namespace: istio-system
+  labels:
+    app: kiali
+    app.kubernetes.io/name: kiali
+    app.kubernetes.io/part-of: kiali
+data:
+  config.yaml: |
+    additional_display_details:
+    - annotation: kiali.io/api-spec
+      icon_annotation: kiali.io/api-type
+      title: API Documentation
+    api:
+      namespaces:
+        exclude:
+        - istio-operator
+        - kube.*
+        - openshift.*
+        - ibm.*
+        - kiali-operator
+        label_selector: kiali.io/member-of=istio-system
+    auth:
+      openid:
+        api_proxy: ''
+        api_proxy_ca_data: ''
+        authentication_timeout: 300
+        authorization_endpoint: ''
+        client_id: ''
+        insecure_skip_verify_tls: false
+        issuer_uri: ''
+        scopes:
+        - openid
+        - profile
+        - email
+        username_claim: sub
+      openshift:
+        client_id_prefix: kiali
+      strategy: openshift
+    deployment:
+      accessible_namespaces:
+      - istio-system
+      - pts-dev-rverma7
+      - pts-dev-skambli
+      - pts-dev-vbergbauer
+      - pts-shared-services
+      - servicemesh-dev-1
+      - servicemesh-dev-2
+      affinity:
+        node: {}
+        pod: {}
+        pod_anti: {}
+      custom_dashboards:
+        excludes:
+        - ''
+        includes:
+        - '*'
+      image_name: registry.redhat.io/openshift-service-mesh/kiali-rhel8@sha256
+      image_pull_policy: ''
+      image_pull_secrets: []
+      image_version: 67b0ff5830dbda6600cd14c3d89b87b025c68ec3a2bf6d54feed87db85b8c4f9
+      ingress_enabled: true
+      namespace: istio-system
+      node_selector: {}
+      pod_annotations: {}
+      priority_class_name: ''
+      replicas: 1
+      resources: {}
+      secret_name: kiali
+      service_annotations: {}
+      tolerations: []
+      verbose_mode: '3'
+      version_label: 67b0ff5830dbda6600cd14c3d89b87b025c68ec3a2bf6d54feed87db85b8XXX
+      view_only_mode: false
+    extensions:
+      iter_8:
+        enabled: false
+      threescale:
+        adapter_name: threescale
+        adapter_port: '3333'
+        adapter_service: threescale-istio-adapter
+        enabled: false
+        template_name: threescale-authorization
+    external_services:
+      custom_dashboards:
+        enabled: true
+        namespace_label: ''
+        prometheus:
+          auth:
+            ca_file: ''
+            insecure_skip_verify: false
+            password: ''
+            token: ''
+            type: none
+            use_kiali_token: false
+            username: ''
+          url: 'http://federated-prometheus-direct.federated-prometheus.svc:9090'
+      grafana:
+        auth:
+          ca_file: /kiali-cabundle/service-ca.crt
+          insecure_skip_verify: false
+          password: <TODO>
+          token: ''
+          type: basic
+          use_kiali_token: false
+          username: internal
+        component_status:
+          app_label: grafana
+          is_core: false
+          namespace: ''
+        dashboards:
+        - name: Istio Service Dashboard
+          variables:
+            namespace: var-namespace
+            service: var-service
+        - name: Istio Workload Dashboard
+          variables:
+            namespace: var-namespace
+            workload: var-workload
+        enabled: true
+        in_cluster_url: https://grafana.istio-system.svc:3000
+        url: https://grafana-istio-system.apps.<cluster>.<domain>
+      istio:
+        component_status:
+          components:
+          - app_label: istiod
+            is_core: true
+          - app_label: istio-ingressgateway
+            is_core: true
+          - app_label: istio-egressgateway
+            is_core: false
+          enabled: true
+        config_map_name: istio-basic
+        istio_identity_domain: svc.cluster.local
+        istio_injection_annotation: sidecar.istio.io/inject
+        istio_sidecar_annotation: sidecar.istio.io/status
+        url_service_version: http://istiod-basic.istio-system:15014/version
+      prometheus:
+        auth:
+          ca_file: /kiali-cabundle/service-ca.crt
+          insecure_skip_verify: false
+          password: <TODO>
+          token: ''
+          type: basic
+          use_kiali_token: false
+          username: internal
+        component_status:
+          app_label: prometheus
+          is_core: true
+          namespace: ''
+        url: https://prometheus.istio-system.svc:9090
+      tracing:
+        auth:
+          ca_file: /kiali-cabundle/service-ca.crt
+          insecure_skip_verify: false
+          password: <TODO>
+          token: ''
+          type: basic
+          use_kiali_token: false
+          username: internal
+        component_status:
+          app_label: jaeger
+          is_core: false
+          namespace: ''
+        enabled: true
+        in_cluster_url: https://jaeger-query.istio-system.svc
+        namespace: istio-system
+        namespace_selector: true
+        service: ''
+        url: https://jaeger-istio-system.apps.<cluster>.<domain>
+        whitelist_istio_system:
+        - jaeger-query
+        - istio-ingressgateway
+    health_config:
+      rate: []
+    identity:
+      cert_file: /kiali-cert/tls.crt
+      private_key_file: /kiali-cert/tls.key
+    installation_tag: Kiali [istio-system]
+    istio_component_namespaces:
+      grafana: istio-system
+      istiod: istio-system
+      prometheus: istio-system
+      tracing: istio-system
+    istio_labels:
+      app_label_name: app
+      injection_label_name: istio-injection
+      version_label_name: version
+    istio_namespace: istio-system
+    kiali_feature_flags:
+      istio_injection_action: true
+    kubernetes_config:
+      burst: 200
+      cache_duration: 300
+      cache_enabled: true
+      cache_istio_types:
+      - DestinationRule
+      - Gateway
+      - ServiceEntry
+      - VirtualService
+      - Sidecar
+      - PeerAuthentication
+      - RequestAuthentication
+      - AuthorizationPolicy
+      cache_namespaces:
+      - .*
+      cache_token_namespace_duration: 10
+      excluded_workloads:
+      - CronJob
+      - DeploymentConfig
+      - Job
+      - ReplicationController
+      qps: 175
+    login_token:
+      expiration_seconds: 86400
+      signing_key: secret:kiali-signing-key:key
+    server:
+      address: ''
+      audit_log: true
+      cors_allow_all: false
+      gzip_enabled: true
+      metrics_enabled: true
+      metrics_port: 9090
+      port: 20001
+      web_fqdn: ''
+      web_root: /
+      web_schema: ''
+    version: v1.24
